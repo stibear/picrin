@@ -12,7 +12,7 @@
   (define-syntax stream-lazy
     (ir-macro-transformer
      (lambda (form inject compare?)
-       (let ((expr (cdr form)))
+       (let ((expr (second form)))
 	 `(make-stream (cons 'lazy (lambda () ,expr)))))))
 
   (define (stream-eager expr)
@@ -22,7 +22,7 @@
   (define-syntax stream-delay
     (ir-macro-transformer
      (lambda (form inject compare?)
-       (let ((expr (cdr form)))
+       (let ((expr (second form)))
 	 `(stream-lazy (stream-eager ,expr))))))
 
   (define (stream-force promise)
