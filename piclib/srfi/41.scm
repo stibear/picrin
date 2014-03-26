@@ -1,6 +1,5 @@
 (define-library (streams primitive)
   (import (scheme base)
-	  (scheme cxr)
 	  (picrin macro)
 	  (srfi 1))
 
@@ -158,7 +157,7 @@
 		      (else
 		       (stream-cons (stream-car (car strms))
 				    (loop (cons (stream-cdr (car strms))
-					       (cdr (strms))))))))))
+						(cdr strms)))))))))
       (cond ((null? strms) stream-null)
 	    ((any (lambda (x) (not (stream? x))) strms)
 	     (error "non-stream argument" strms))
@@ -208,7 +207,7 @@
   (define (stream-drop-while pred? strm)
     (letrec ((loop
 	      (stream-lambda (strm)
-		(if (and (stream-pair? strm) (perd? (stream-car strm)))
+		(if (and (stream-pair? strm) (pred? (stream-car strm)))
 		    (loop (stream-cdr strm))
 		    strm))))
       (cond ((not (procedure? pred?))
@@ -254,8 +253,8 @@
 	    ((null? strms)
 	     (error "no stream arguments" strms))
 	    ((any (lambda (x) (not (stream? x))) strms)
-	     (error "non-stream argument" strms)
-	     (else (stream-for-each strms))))))
+	     (error "non-stream argument" strms))
+	    (else (stream-for-each strms)))))
 
   (define (stream-from fst . step)
     (letrec ((loop
@@ -301,14 +300,14 @@
 		(if (any stream-null? strms)
 		    stream-null
 		    (stream-cons (apply proc (map stream-car strms))
-				 (stream-map (map stream-cdr strms)))))))
+				 (loop (map stream-cdr strms)))))))
       (cond ((not (procedure? proc))
 	     (error "non-procedural argument" proc))
 	    ((null? strms)
 	     (error "no stream arguments" strms))
 	    ((any (lambda (x) (not (stream? x))) strms)
 	     (error "non-stream argument" strms))
-	    (else (rec strms)))))
+	    (else (loop strms)))))
 
   (define-syntax stream-match
     (ir-macro-transformer
@@ -441,7 +440,7 @@
 		(if (stream-null? strm)
 		    (stream base)
 		    (stream-cons base (loop (proc base (stream-car strm))
-					    (strm-cdr strm)))))))
+					    (stream-cdr strm)))))))
       (cond ((not (procedure? proc))
 	     (error "non-procedural argument" proc))
 	    ((not (stream? strm))
