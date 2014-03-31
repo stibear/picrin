@@ -88,7 +88,6 @@
 
 (define-library (streams derived)
   (import (scheme base)
-	  (scheme cxr)
 	  (picrin macro)
 	  (srfi 1)
 	  (streams primitive))
